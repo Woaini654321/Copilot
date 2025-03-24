@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史会话设计 - 响应式设计</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #303133;
+            border-bottom: 2px solid #409EFF;
+            padding-bottom: 10px;
+        }
+        .design-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 40px;
+        }
+        .design-preview {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            margin: 30px 0;
+        }
+        .device {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .device-label {
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #606266;
+        }
+        .desktop-mockup {
+            width: 360px;
+            height: 240px;
+            background-color: #F5F7FA;
+            position: relative;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #DCDFE6;
+        }
+        .tablet-mockup {
+            width: 280px;
+            height: 200px;
+            background-color: #F5F7FA;
+            position: relative;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #DCDFE6;
+        }
+        .mobile-mockup {
+            width: 160px;
+            height: 280px;
+            background-color: #F5F7FA;
+            position: relative;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #DCDFE6;
+        }
+        .sidebar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            background-color: #FFFFFF;
+            border-right: 1px solid #DCDFE6;
+        }
+        .sidebar.desktop {
+            width: 140px;
+            height: 100%;
+        }
+        .sidebar.tablet {
+            width: 100px;
+            height: 100%;
+        }
+        .content {
+            position: absolute;
+            background-color: #FFFFFF;
+        }
+        .content.desktop {
+            left: 140px;
+            top: 0;
+            width: calc(100% - 140px);
+            height: 100%;
+        }
+        .content.tablet {
+            left: 100px;
+            top: 0;
+            width: calc(100% - 100px);
+            height: 100%;
+        }
+        .mobile-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background-color: #FFFFFF;
+            border-bottom: 1px solid #DCDFE6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .tab {
+            display: inline-block;
+            padding: 0 15px;
+            height: 100%;
+            line-height: 40px;
+            font-size: 14px;
+            text-align: center;
+        }
+        .tab.active {
+            color: #409EFF;
+            font-weight: bold;
+            position: relative;
+        }
+        .tab.active::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background-color: #409EFF;
+        }
+        .tab.inactive {
+            color: #606266;
+        }
+        .mobile-content {
+            position: absolute;
+            top: 40px;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 40px);
+            background-color: #FFFFFF;
+            overflow-y: auto;
+        }
+        .chat-item-mini {
+            padding: 10px;
+            margin: 8px;
+            background-color: #FFFFFF;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid #DCDFE6;
+            font-size: 12px;
+        }
+        .chat-title-mini {
+            font-weight: bold;
+            margin-bottom: 4px;
+            font-size: 12px;
+            color: #303133;
+        }
+        .chat-preview-mini {
+            color: #606266;
+            font-size: 10px;
+        }
+        .device-description {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #909399;
+            max-width: 360px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>历史会话设计 - 响应式设计</h1>
+    
+    <div class="design-container">
+        <h2>响应式设计描述</h2>
+        <ul>
+            <li>界面适配桌面端(≥1200px)、平板端(≥768px且<1200px)和移动端(<768px)</li>
+            <li>桌面端：左侧边栏宽度280px，右侧自适应</li>
+            <li>平板端：左侧边栏宽度240px，右侧自适应</li>
+            <li>移动端：单栏布局，通过顶部标签切换历史/对话内容</li>
+        </ul>
+        
+        <div class="design-preview">
+            <!-- 桌面端布局 -->
+            <div class="device">
+                <div class="device-label">桌面端 ≥1200px</div>
+                <div class="desktop-mockup">
+                    <div class="sidebar desktop"></div>
+                    <div class="content desktop"></div>
+                </div>
+                <div class="device-description">
+                    左侧侧边栏宽度为280px，用于显示历史会话列表，右侧为对话内容区域，宽度自适应
+                </div>
+            </div>
+            
+            <!-- 平板端布局 -->
+            <div class="device">
+                <div class="device-label">平板端 ≥768px 且 <1200px</div>
+                <div class="tablet-mockup">
+                    <div class="sidebar tablet"></div>
+                    <div class="content tablet"></div>
+                </div>
+                <div class="device-description">
+                    左侧侧边栏宽度缩小至240px，保持双栏布局，右侧对话区域自适应
+                </div>
+            </div>
+            
+            <!-- 移动端布局 -->
+            <div class="device">
+                <div class="device-label">移动端 <768px</div>
+                <div class="mobile-mockup">
+                    <div class="mobile-header">
+                        <div class="tab active">历史</div>
+                        <div class="tab inactive">对话</div>
+                    </div>
+                    <div class="mobile-content">
+                        <div class="chat-item-mini">
+                            <div class="chat-title-mini">关于人工智能的讨论</div>
+                            <div class="chat-preview-mini">14:30 人工智能技术...</div>
+                        </div>
+                        <div class="chat-item-mini">
+                            <div class="chat-title-mini">JavaScript编程问题</div>
+                            <div class="chat-preview-mini">10:15 如何优化...</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="device-description">
+                    切换为单栏布局，通过顶部标签在"历史"和"对话"内容间切换。卡片尺寸也相应调小
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="design-container">
+        <h2>加载更多功能设计</h2>
+        <ul>
+            <li>默认显示30条记录，滚动到底部自动加载更多记录</li>
+            <li>加载中状态显示加载指示器</li>
+            <li>加载失败状态显示重试按钮</li>
+            <li>所有记录加载完毕时显示"已加载全部内容"</li>
+        </ul>
+        
+        <div class="design-preview">
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjRjVGN0ZBIiByeD0iNSIgcnk9IjUiLz4KICA8dGV4dCB4PSIxNTAiIHk9IjkwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5MDkzOTkiPuWKoOi9veS4rS4uLjwvdGV4dD4KICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgyMDAsIDEwMCkiPgogICAgPGNpcmNsZSByPSIxMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNDA5RUZGIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1kYXNoYXJyYXk9IjMyIiBzdHJva2UtZGFzaG9mZnNldD0iOCI+CiAgICAgIDxhbmltYXRlVHJhbnNmb3JtIGF0dHJpYnV0ZU5hbWU9InRyYW5zZm9ybSIgdHlwZT0icm90YXRlIiBmcm9tPSIwIiBkdXI9IjFzIiB0bz0iMzYwIiByZXBlYXRDb3VudD0iaW5kZWZpbml0ZSIvPgogICAgPC9jaXJjbGU+CiAgPC9nPgo8L3N2Zz4=" alt="加载中指示器" style="width: 320px; height: 100px; border-radius: 4px; margin-bottom: 10px;">
+            
+            <div style="font-size: 14px; color: #606266; margin-top: 10px; text-align: center;">
+                加载指示器动画效果：显示加载中状态
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史会话设计 - 响应式设计标注</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #303133;
+            border-bottom: 2px solid #409EFF;
+            padding-bottom: 10px;
+        }
+        .design-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 40px;
+        }
+        .design-preview {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            margin: 30px 0;
+            position: relative;
+        }
+        .device {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        .device-label {
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #606266;
+        }
+        .desktop-mockup {
+            width: 360px;
+            height: 240px;
+            background-color: #F5F7FA;
+            position: relative;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #DCDFE6;
+        }
+        .tablet-mockup {
+            width: 280px;
+            height: 200px;
+            background-color: #F5F7FA;
+            position: relative;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #DCDFE6;
+        }
+        .mobile-mockup {
+            width: 160px;
+            height: 280px;
+            background-color: #F5F7FA;
+            position: relative;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #DCDFE6;
+        }
+        .sidebar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            background-color: #FFFFFF;
+            border-right: 1px solid #DCDFE6;
+        }
+        .sidebar.desktop {
+            width: 140px;
+            height: 100%;
+        }
+        .sidebar.tablet {
+            width: 100px;
+            height: 100%;
+        }
+        .content {
+            position: absolute;
+            background-color: #FFFFFF;
+        }
+        .content.desktop {
+            left: 140px;
+            top: 0;
+            width: calc(100% - 140px);
+            height: 100%;
+        }
+        .content.tablet {
+            left: 100px;
+            top: 0;
+            width: calc(100% - 100px);
+            height: 100%;
+        }
+        .mobile-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background-color: #FFFFFF;
+            border-bottom: 1px solid #DCDFE6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .tab {
+            display: inline-block;
+            padding: 0 15px;
+            height: 100%;
+            line-height: 40px;
+            font-size: 14px;
+            text-align: center;
+        }
+        .tab.active {
+            color: #409EFF;
+            font-weight: bold;
+            position: relative;
+        }
+        .tab.active::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background-color: #409EFF;
+        }
+        .tab.inactive {
+            color: #606266;
+        }
+        .mobile-content {
+            position: absolute;
+            top: 40px;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 40px);
+            background-color: #FFFFFF;
+            overflow-y: auto;
+        }
+        .chat-item-mini {
+            padding: 10px;
+            margin: 8px;
+            background-color: #FFFFFF;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid #DCDFE6;
+            font-size: 12px;
+        }
+        .chat-title-mini {
+            font-weight: bold;
+            margin-bottom: 4px;
+            font-size: 12px;
+            color: #303133;
+        }
+        .chat-preview-mini {
+            color: #606266;
+            font-size: 10px;
+        }
+        .device-description {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #909399;
+            max-width: 360px;
+            text-align: center;
+        }
+        .loading-indicator {
+            width: 320px;
+            height: 100px;
+            background-color: #F5F7FA;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .loading-text {
+            font-size: 14px;
+            color: #909399;
+            margin-bottom: 16px;
+        }
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(64, 158, 255, 0.2);
+            border-top-color: #409EFF;
+            border-radius: 50%;
+            animation: spin 1s infinite linear;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 标注样式 */
+        .annotation {
+            position: absolute;
+            font-size: 12px;
+            color: #F56C6C;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 10;
+        }
+        .annotation-line {
+            position: absolute;
+            background-color: #F56C6C;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .annotation-box {
+            position: absolute;
+            border: 1px dashed #F56C6C;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .annotation-circle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: rgba(245, 108, 108, 0.2);
+            border: 1px solid #F56C6C;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #F56C6C;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 10;
+        }
+        .annotation-label {
+            background-color: #F56C6C;
+            color: white;
+            padding: 2px 5px;
+            border-radius: 2px;
+            font-size: 12px;
+            z-index: 10;
+        }
+        .color-block {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+            margin-right: 5px;
+            vertical-align: middle;
+            border: 1px solid #DCDFE6;
+        }
+        .specs-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .specs-table th, .specs-table td {
+            border: 1px solid #DCDFE6;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        .specs-table th {
+            background-color: #F2F6FC;
+        }
+        .specs-section {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>历史会话设计 - 响应式设计标注</h1>
+    
+    <div class="design-container">
+        <h2>响应式设计断点标注</h2>
+        
+        <div class="design-preview">
+            <!-- 桌面端布局 -->
+            <div class="device">
+                <div class="device-label">桌面端 ≥1200px</div>
+                <div class="desktop-mockup">
+                    <div class="sidebar desktop"></div>
+                    <div class="content desktop"></div>
+                    
+                    <!-- 标注 -->
+                    <div class="annotation-box" style="left: 0; top: 0; width: 140px; height: 100%;"></div>
+                    <div class="annotation" style="left: 0; top: -25px; width: 140px; text-align: center;">
+                        实际宽度: 280px
+                    </div>
+                    
+                    <div class="annotation-line" style="left: 70px; top: 120px; width: 60px; height: 1px;"></div>
+                    <div class="annotation" style="left: 135px; top: 115px;">
+                        边框: 1px solid #DCDFE6
+                    </div>
+                    
+                    <div class="annotation-box" style="left: 140px; top: 0; width: calc(100% - 140px); height: 100%;"></div>
+                    <div class="annotation" style="left: 200px; top: -25px; width: 140px; text-align: center;">
+                        内容区: 自适应宽度
+                    </div>
+                </div>
+                <div class="device-description">
+                    左侧侧边栏宽度为280px，用于显示历史会话列表，右侧为对话内容区域，宽度自适应
+                </div>
+                
+                <div class="annotation-circle" style="top: 120px; left: -30px;">1</div>
+            </div>
+            
+            <!-- 平板端布局 -->
+            <div class="device">
+                <div class="device-label">平板端 ≥768px 且 <1200px</div>
+                <div class="tablet-mockup">
+                    <div class="sidebar tablet"></div>
+                    <div class="content tablet"></div>
+                    
+                    <!-- 标注 -->
+                    <div class="annotation-box" style="left: 0; top: 0; width: 100px; height: 100%;"></div>
+                    <div class="annotation" style="left: 0; top: -25px; width: 100px; text-align: center;">
+                        实际宽度: 240px
+                    </div>
+                    
+                    <div class="annotation-box" style="left: 100px; top: 0; width: calc(100% - 100px); height: 100%;"></div>
+                    <div class="annotation" style="left: 170px; top: -25px; width: 100px; text-align: center;">
+                        自适应宽度
+                    </div>
+                </div>
+                <div class="device-description">
+                    左侧侧边栏宽度缩小至240px，保持双栏布局，右侧对话区域自适应
+                </div>
+                
+                <div class="annotation-circle" style="top: 100px; left: -30px;">2</div>
+            </div>
+            
+            <!-- 移动端布局 -->
+            <div class="device">
+                <div class="device-label">移动端 <768px</div>
+                <div class="mobile-mockup">
+                    <div class="mobile-header">
+                        <div class="tab active">历史</div>
+                        <div class="tab inactive">对话</div>
+                    </div>
+                    <div class="mobile-content">
+                        <div class="chat-item-mini">
+                            <div class="chat-title-mini">关于人工智能的讨论</div>
+                            <div class="chat-preview-mini">14:30 人工智能技术...</div>
+                        </div>
+                        <div class="chat-item-mini">
+                            <div class="chat-title-mini">JavaScript编程问题</div>
+                            <div class="chat-preview-mini">10:15 如何优化...</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 标注 -->
+                    <div class="annotation-box" style="left: 0; top: 0; width: 100%; height: 40px;"></div>
+                    <div class="annotation" style="left: 170px; top: 20px;">
+                        标签栏: 40px
+                    </div>
+                    
+                    <div class="annotation-line" style="left: 80px; top: 20px; width: 30px; height: 1px;"></div>
+                    <div class="annotation" style="left: 115px; top: 15px;">
+                        标签切换区
+                    </div>
+                    
+                    <div class="annotation-box" style="left: 8px; top: 48px; width: calc(100% - 16px); height: 42px;"></div>
+                    <div class="annotation" style="left: 170px; top: 65px;">
+                        卡片内边距: 10px<br>
+                        字体: 12px/10px
+                    </div>
+                </div>
+                <div class="device-description">
+                    切换为单栏布局，通过顶部标签在"历史"和"对话"内容间切换。卡片尺寸也相应调小
+                </div>
+                
+                <div class="annotation-circle" style="top: 140px; left: -30px;">3</div>
+            </div>
+        </div>
+        
+        <div class="specs-section">
+            <h3>响应式断点规范</h3>
+            <table class="specs-table">
+                <tr>
+                    <th>设备类型</th>
+                    <th>断点范围</th>
+                    <th>布局特点</th>
+                    <th>侧边栏宽度</th>
+                </tr>
+                <tr>
+                    <td>大屏桌面端</td>
+                    <td>≥1440px</td>
+                    <td>双栏布局，内容区域更宽</td>
+                    <td>280px</td>
+                </tr>
+                <tr>
+                    <td>桌面端</td>
+                    <td>≥1200px 且 <1440px</td>
+                    <td>双栏布局</td>
+                    <td>280px</td>
+                </tr>
+                <tr>
+                    <td>平板端</td>
+                    <td>≥768px 且 <1200px</td>
+                    <td>双栏布局，侧边栏减小</td>
+                    <td>240px</td>
+                </tr>
+                <tr>
+                    <td>大屏手机</td>
+                    <td>≥480px 且 <768px</td>
+                    <td>单栏布局，标签切换</td>
+                    <td>不适用</td>
+                </tr>
+                <tr>
+                    <td>移动端</td>
+                    <td><480px</td>
+                    <td>单栏布局，标签切换，元素更紧凑</td>
+                    <td>不适用</td>
+                </tr>
+            </table>
+            
+            <h3>布局详细规范</h3>
+            <ol>
+                <li>
+                    <h4>桌面端布局 (≥1200px)</h4>
+                    <table class="specs-table">
+                        <tr>
+                            <th>元素</th>
+                            <th>尺寸/间距</th>
+                            <th>说明</th>
+                        </tr>
+                        <tr>
+                            <td>侧边栏宽度</td>
+                            <td>280px</td>
+                            <td>固定宽度，不随窗口大小变化</td>
+                        </tr>
+                        <tr>
+                            <td>内容区宽度</td>
+                            <td>calc(100% - 280px)</td>
+                            <td>自适应窗口大小</td>
+                        </tr>
+                        <tr>
+                            <td>侧边栏内部边距</td>
+                            <td>左右: 16px</td>
+                            <td>内容与边缘的间距</td>
+                        </tr>
+                        <tr>
+                            <td>会话记录卡片</td>
+                            <td>宽度: 248px<br>内边距: 12px</td>
+                            <td>标准尺寸展示</td>
+                        </tr>
+                    </table>
+                </li>
+                <li>
+                    <h4>平板端布局 (≥768px 且 <1200px)</h4>
+                    <table class="specs-table">
+                        <tr>
+                            <th>元素</th>
+                            <th>尺寸/间距</th>
+                            <th>说明</th>
+                        </tr>
+                        <tr>
+                            <td>侧边栏宽度</td>
+                            <td>240px</td>
+                            <td>相比桌面端收窄 40px</td>
+                        </tr>
+                        <tr>
+                            <td>内容区宽度</td>
+                            <td>calc(100% - 240px)</td>
+                            <td>自适应窗口大小</td>
+                        </tr>
+                        <tr>
+                            <td>侧边栏内部边距</td>
+                            <td>左右: 12px</td>
+                            <td>内边距减小 4px</td>
+                        </tr>
+                        <tr>
+                            <td>会话记录卡片</td>
+                            <td>宽度: 216px<br>内边距: 10px</td>
+                            <td>卡片尺寸略小</td>
+                        </tr>
+                    </table>
+                </li>
+                <li>
+                    <h4>移动端布局 (<768px)</h4>
+                    <table class="specs-table">
+                        <tr>
+                            <th>元素</th>
+                            <th>尺寸/间距</th>
+                            <th>说明</th>
+                        </tr>
+                        <tr>
+                            <td>顶部标签栏</td>
+                            <td>高度: 40px</td>
+                            <td>用于切换历史列表和对话内容</td>
+                        </tr>
+                        <tr>
+                            <td>标签按钮</td>
+                            <td>内边距: 0 15px<br>字体: 14px</td>
+                            <td>活跃标签底部有蓝色标记</td>
+                        </tr>
+                        <tr>
+                            <td>侧边栏和内容区</td>
+                            <td>宽度: 100%</td>
+                            <td>通过标签切换显示</td>
+                        </tr>
+                        <tr>
+                            <td>会话记录卡片</td>
+                            <td>内边距: 10px<br>字体: 12px/10px</td>
+                            <td>卡片尺寸更小，适应移动设备</td>
+                        </tr>
+                    </table>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="design-container">
+        <h2>加载更多功能标注</h2>
+        
+        <div class="design-preview">
+            <div class="loading-indicator">
+                <div class="loading-text">加载中...</div>
+                <div class="loading-spinner"></div>
+                
+                <!-- 标注 -->
+                <div class="annotation-line" style="left: 160px; top: 40px; width: 80px; height: 1px;"></div>
+                <div class="annotation" style="left: 250px; top: 35px;">
+                    文字: 14px #909399
+                </div>
+                
+                <div class="annotation-line" style="left: 160px; top: 60px; width: 80px; height: 1px;"></div>
+                <div class="annotation" style="left: 250px; top: 55px;">
+                    加载动画:<br>
+                    24px 圆形<br>
+                    边框: 2px<br>
+                    颜色: #409EFF
+                </div>
+            </div>
+            
+            <div class="annotation-box" style="left: 0; top: 0; width: 320px; height: 100px; transform: translate(0, 0);"></div>
+            <div class="annotation" style="left: 0; top: -25px; width: 320px; text-align: center;">
+                加载指示器: 320px × 100px
+            </div>
+        </div>
+        
+        <div class="specs-section">
+            <h3>加载状态规范</h3>
+            <table class="specs-table">
+                <tr>
+                    <th>状态</th>
+                    <th>视觉表现</th>
+                    <th>交互行为</th>
+                </tr>
+                <tr>
+                    <td>加载中</td>
+                    <td>旋转的蓝色圆形加载动画 + "加载中..." 文字</td>
+                    <td>自动加载，无需用户操作</td>
+                </tr>
+                <tr>
+                    <td>加载失败</td>
+                    <td>错误图标 + "加载失败" + "重试" 按钮</td>
+                    <td>点击重试按钮重新加载</td>
+                </tr>
+                <tr>
+                    <td>全部加载完毕</td>
+                    <td>文字提示 "已加载全部内容"</td>
+                    <td>无交互，表示已无更多内容</td>
+                </tr>
+                <tr>
+                    <td>首次加载</td>
+                    <td>页面中心显示加载动画</td>
+                    <td>页面加载时自动显示</td>
+                </tr>
+            </table>
+            
+            <h3>加载组件样式规范</h3>
+            <table class="specs-table">
+                <tr>
+                    <th>元素</th>
+                    <th>样式说明</th>
+                </tr>
+                <tr>
+                    <td>加载文字</td>
+                    <td>字体: 14px<br>颜色: #909399<br>间距: 下方 16px</td>
+                </tr>
+                <tr>
+                    <td>加载动画</td>
+                    <td>大小: 24px × 24px<br>边框: 2px<br>颜色: rgba(64, 158, 255, 0.2) / #409EFF<br>动画: 1秒旋转一周</td>
+                </tr>
+                <tr>
+                    <td>"重试"按钮</td>
+                    <td>大小: 80px × 32px<br>背景: #FFFFFF<br>边框: 1px solid #DCDFE6<br>圆角: 4px<br>颜色: #409EFF</td>
+                </tr>
+                <tr>
+                    <td>"已加载全部"提示</td>
+                    <td>字体: 14px<br>颜色: #909399<br>上下内边距: 16px</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="specs-section">
+            <h3>加载交互说明</h3>
+            <ol>
+                <li><b>自动加载</b>: 当用户滚动到列表底部时（距离底部 200px 内），自动触发加载更多的操作</li>
+                <li><b>加载中</b>: 加载过程中，禁止重复触发加载请求</li>
+                <li><b>加载失败</b>: 请求失败后，显示重试按钮，用户可点击重试</li>
+                <li><b>全部加载完毕</b>: 服务端返回无更多数据时，显示已加载全部内容的提示，且不再触发加载请求</li>
+                <li><b>返回顶部</b>: 当列表较长时，可在右下角提供"返回顶部"按钮，帮助用户快速回到顶部</li>
+            </ol>
+        </div>
+    </div>
+    
+    <div class="design-container">
+        <h2>响应式设计开发注意事项</h2>
+        
+        <div class="specs-section">
+            <h3>CSS媒体查询规范</h3>
+            <table class="specs-table">
+                <tr>
+                    <th>设备类型</th>
+                    <th>媒体查询</th>
+                </tr>
+                <tr>
+                    <td>大屏桌面端</td>
+                    <td><code>@media screen and (min-width: 1440px) { ... }</code></td>
+                </tr>
+                <tr>
+                    <td>桌面端</td>
+                    <td><code>@media screen and (min-width: 1200px) and (max-width: 1439px) { ... }</code></td>
+                </tr>
+                <tr>
+                    <td>平板端</td>
+                    <td><code>@media screen and (min-width: 768px) and (max-width: 1199px) { ... }</code></td>
+                </tr>
+                <tr>
+                    <td>大屏手机</td>
+                    <td><code>@media screen and (min-width: 480px) and (max-width: 767px) { ... }</code></td>
+                </tr>
+                <tr>
+                    <td>移动端</td>
+                    <td><code>@media screen and (max-width: 479px) { ... }</code></td>
+                </tr>
+            </table>
+            
+            <h3>移动优先原则</h3>
+            <p>开发时建议采用移动优先的设计方法：</p>
+            <ol>
+                <li>先实现移动端布局基础样式</li>
+                <li>通过媒体查询逐步增强，添加平板和桌面端的布局</li>
+                <li>避免使用固定像素宽度，优先使用相对单位（%、rem、em）和弹性布局</li>
+                <li>对于不可避免的固定宽度元素，在各断点处进行响应式调整</li>
+            </ol>
+            
+            <h3>适配要点</h3>
+            <ol>
+                <li><b>布局切换</b>：移动端使用标签页切换而非双栏展示，需要在JS中控制切换逻辑</li>
+                <li><b>元素尺寸</b>：随着屏幕尺寸减小，减小内边距、字体大小和元素间距</li>
+                <li><b>触控友好</b>：移动端上的可点击元素（按钮、卡片等）保持至少 44px × 44px 的可点击区域</li>
+                <li><b>性能优化</b>：移动端加载较大列表时需考虑虚拟滚动，减少DOM元素数量</li>
+                <li><b>图片适配</b>：使用响应式图片技术，根据设备提供合适尺寸和分辨率的图片</li>
+                <li><b>测试</b>：在真实设备和不同浏览器上进行测试，确保功能和视觉效果符合预期</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

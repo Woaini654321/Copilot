@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史会话设计 - 搜索框标注</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #303133;
+            border-bottom: 2px solid #409EFF;
+            padding-bottom: 10px;
+        }
+        .design-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 40px;
+        }
+        .design-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+            position: relative;
+        }
+        .search-container {
+            width: 400px;
+            padding: 30px;
+            background-color: #F5F7FA;
+            border-radius: 8px;
+            position: relative;
+        }
+        .search-box {
+            width: 280px;
+            padding: 10px 12px;
+            border: 1px solid #DCDFE6;
+            border-radius: 4px;
+            background-color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        .search-box.active {
+            border-color: #409EFF;
+        }
+        .search-icon {
+            color: #909399;
+            margin-right: 8px;
+            font-size: 18px;
+        }
+        .search-placeholder {
+            color: #909399;
+            font-size: 14px;
+        }
+        .search-text {
+            color: #303133;
+            font-size: 14px;
+        }
+        .clear-icon {
+            position: absolute;
+            right: 10px;
+            color: #909399;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .state-label {
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #606266;
+            align-self: flex-start;
+            margin-left: 60px;
+        }
+        
+        /* 标注样式 */
+        .annotation {
+            position: absolute;
+            font-size: 12px;
+            color: #F56C6C;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .annotation-line {
+            position: absolute;
+            background-color: #F56C6C;
+            pointer-events: none;
+        }
+        .annotation-box {
+            position: absolute;
+            border: 1px dashed #F56C6C;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .annotation-label {
+            background-color: #F56C6C;
+            color: white;
+            padding: 2px 5px;
+            border-radius: 2px;
+            font-size: 12px;
+        }
+        .color-block {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+            margin-right: 5px;
+            vertical-align: middle;
+            border: 1px solid #DCDFE6;
+        }
+        .specs-table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .specs-table th, .specs-table td {
+            border: 1px solid #DCDFE6;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        .specs-table th {
+            background-color: #F2F6FC;
+        }
+        .specs-section {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>历史会话设计 - 搜索框标注</h1>
+    
+    <div class="design-container">
+        <h2>搜索框设计标注</h2>
+        
+        <div class="design-preview">
+            <!-- 默认状态 -->
+            <div class="state-label">默认状态</div>
+            <div class="search-container">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <span class="search-placeholder">搜索历史会话...</span>
+                </div>
+                
+                <!-- 搜索框尺寸标注 -->
+                <div class="annotation-box" style="left: 0; top: 0; width: 280px; height: 40px; transform: translate(60px, 10px);">
+                    <span class="annotation-label">宽度: 280px</span>
+                </div>
+                
+                <!-- 搜索图标标注 -->
+                <div class="annotation-line" style="left: 73px; top: 24px; width: 1px; height: 50px;"></div>
+                <div class="annotation" style="left: 30px; top: 80px;">
+                    搜索图标<br>颜色: #909399
+                </div>
+                
+                <!-- 占位文字标注 -->
+                <div class="annotation-line" style="left: 130px; top: 24px; width: 1px; height: 40px;"></div>
+                <div class="annotation" style="left: 140px; top: 70px;">
+                    占位文字<br>14px #909399
+                </div>
+                
+                <!-- 边框标注 -->
+                <div class="annotation-line" style="left: 260px; top: 24px; width: 1px; height: 60px;"></div>
+                <div class="annotation" style="left: 270px; top: 90px;">
+                    边框: 1px solid #DCDFE6<br>
+                    圆角: 4px<br>
+                    内边距: 10px 12px
+                </div>
+            </div>
+            
+            <!-- 输入状态 -->
+            <div class="state-label" style="margin-top: 60px;">输入状态</div>
+            <div class="search-container">
+                <div class="search-box active">
+                    <span class="search-icon">🔍</span>
+                    <span class="search-text">人工智能</span>
+                    <span class="clear-icon">✕</span>
+                </div>
+                
+                <!-- 输入状态边框标注 -->
+                <div class="annotation-line" style="left: 200px; top: 24px; width: 1px; height: 50px;"></div>
+                <div class="annotation" style="left: 210px; top: 80px;">
+                    激活边框: 1px solid #409EFF
+                </div>
+                
+                <!-- 输入文字标注 -->
+                <div class="annotation-line" style="left: 130px; top: 24px; width: 1px; height: 40px;"></div>
+                <div class="annotation" style="left: 80px; top: 70px;">
+                    输入文字<br>14px #303133
+                </div>
+                
+                <!-- 清除按钮标注 -->
+                <div class="annotation-line" style="left: 320px; top: 24px; width: 1px; height: 60px;"></div>
+                <div class="annotation" style="left: 330px; top: 90px;">
+                    清除按钮<br>
+                    颜色: #909399<br>
+                    鼠标悬停变为 #F56C6C
+                </div>
+            </div>
+        </div>
+        
+        <div class="specs-section">
+            <h3>搜索框规范</h3>
+            <table class="specs-table">
+                <tr>
+                    <th>状态</th>
+                    <th>描述</th>
+                    <th>视觉效果</th>
+                </tr>
+                <tr>
+                    <td>默认状态</td>
+                    <td>未激活，未输入内容</td>
+                    <td>边框 #DCDFE6，显示占位符文本</td>
+                </tr>
+                <tr>
+                    <td>焦点状态</td>
+                    <td>激活但未输入内容</td>
+                    <td>边框 #409EFF，显示占位符文本</td>
+                </tr>
+                <tr>
+                    <td>输入状态</td>
+                    <td>已输入内容</td>
+                    <td>边框 #409EFF，显示输入文本和清除按钮</td>
+                </tr>
+                <tr>
+                    <td>禁用状态</td>
+                    <td>不可交互</td>
+                    <td>边框 #E4E7ED，背景色 #F5F7FA，文本颜色 #C0C4CC</td>
+                </tr>
+            </table>
+            
+            <h3>组件尺寸</h3>
+            <table class="specs-table">
+                <tr>
+                    <th>元素</th>
+                    <th>尺寸</th>
+                </tr>
+                <tr>
+                    <td>搜索框宽度</td>
+                    <td>280px</td>
+                </tr>
+                <tr>
+                    <td>搜索框高度</td>
+                    <td>40px (包含内边距和边框)</td>
+                </tr>
+                <tr>
+                    <td>内边距</td>
+                    <td>垂直: 10px, 水平: 12px</td>
+                </tr>
+                <tr>
+                    <td>边框圆角</td>
+                    <td>4px</td>
+                </tr>
+                <tr>
+                    <td>图标尺寸</td>
+                    <td>16px × 16px</td>
+                </tr>
+            </table>
+            
+            <h3>颜色规范</h3>
+            <table class="specs-table">
+                <tr>
+                    <th>元素</th>
+                    <th>颜色值</th>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="color-block" style="background-color: #FFFFFF;"></span>
+                        背景色
+                    </td>
+                    <td>#FFFFFF</td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="color-block" style="background-color: #DCDFE6;"></span>
+                        默认边框
+                    </td>
+                    <td>#DCDFE6</td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="color-block" style="background-color: #409EFF;"></span>
+                        激活边框
+                    </td>
+                    <td>#409EFF</td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="color-block" style="background-color: #909399;"></span>
+                        占位符文本
+                    </td>
+                    <td>#909399</td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="color-block" style="background-color: #303133;"></span>
+                        输入文本
+                    </td>
+                    <td>#303133</td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="color-block" style="background-color: #909399;"></span>
+                        图标颜色
+                    </td>
+                    <td>#909399</td>
+                </tr>
+            </table>
+            
+            <h3>交互规范</h3>
+            <table class="specs-table">
+                <tr>
+                    <th>行为</th>
+                    <th>反馈</th>
+                </tr>
+                <tr>
+                    <td>点击搜索框</td>
+                    <td>获取焦点，边框变为蓝色 (#409EFF)</td>
+                </tr>
+                <tr>
+                    <td>输入内容</td>
+                    <td>显示输入的文本，右侧出现清除按钮</td>
+                </tr>
+                <tr>
+                    <td>点击清除按钮</td>
+                    <td>清空输入内容，返回到未输入状态</td>
+                </tr>
+                <tr>
+                    <td>鼠标悬停在清除按钮</td>
+                    <td>按钮颜色变为红色 (#F56C6C)</td>
+                </tr>
+                <tr>
+                    <td>按下回车键</td>
+                    <td>开始搜索，显示搜索结果</td>
+                </tr>
+                <tr>
+                    <td>失去焦点</td>
+                    <td>如有内容保持显示，边框变回默认色</td>
+                </tr>
+            </table>
+            
+            <h3>无障碍性</h3>
+            <table class="specs-table">
+                <tr>
+                    <th>功能</th>
+                    <th>实现方式</th>
+                </tr>
+                <tr>
+                    <td>键盘可访问</td>
+                    <td>可通过Tab键聚焦，Enter键搜索</td>
+                </tr>
+                <tr>
+                    <td>屏幕阅读器支持</td>
+                    <td>适当的ARIA标签和角色</td>
+                </tr>
+                <tr>
+                    <td>状态提示</td>
+                    <td>通过颜色和形状变化提供状态反馈</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

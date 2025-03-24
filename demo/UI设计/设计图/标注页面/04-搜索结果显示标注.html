@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史会话UI标注 - 搜索结果显示</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #303133;
+            border-bottom: 2px solid #409EFF;
+            padding-bottom: 10px;
+        }
+        .design-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 40px;
+        }
+        .design-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+            position: relative;
+        }
+        .sidebar-preview {
+            width: 300px;
+            height: 500px;
+            background-color: #FFFFFF;
+            border: 1px solid #DCDFE6;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        .sidebar-header {
+            padding: 16px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #303133;
+            border-bottom: 1px solid #EBEEF5;
+        }
+        .search-box {
+            margin: 12px 16px;
+            padding: 8px 12px;
+            border: 1px solid #409EFF;
+            border-radius: 4px;
+            background-color: #FFFFFF;
+            display: flex;
+            align-items: center;
+        }
+        .search-icon {
+            color: #909399;
+            margin-right: 8px;
+        }
+        .search-text {
+            color: #303133;
+            font-size: 14px;
+        }
+        .clear-icon {
+            margin-left: auto;
+            color: #909399;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .search-results {
+            padding: 8px 16px;
+            background-color: #F2F6FC;
+            font-size: 14px;
+            color: #606266;
+        }
+        .highlight-text {
+            color: #409EFF;
+            font-weight: bold;
+        }
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: #909399;
+            font-size: 14px;
+            text-align: center;
+        }
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            color: #DCDFE6;
+        }
+        .chat-item {
+            margin: 8px 16px;
+            padding: 12px;
+            border-radius: 4px;
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: relative;
+            border: 1px solid #DCDFE6;
+        }
+        .chat-title {
+            font-weight: bold;
+            color: #303133;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .chat-preview {
+            color: #606266;
+            font-size: 13px;
+        }
+        .delete-icon {
+            position: absolute;
+            right: 12px;
+            top: 12px;
+            color: #F56C6C;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .annotation {
+            position: absolute;
+            background-color: rgba(255, 192, 203, 0.1);
+            border: 1px dashed #F56C6C;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            color: #F56C6C;
+            z-index: 100;
+        }
+        .annotation-line {
+            position: absolute;
+            background-color: #F56C6C;
+            z-index: 99;
+        }
+        .annotation-text {
+            position: absolute;
+            background-color: #F56C6C;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 2px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 100;
+        }
+        .specs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .specs-table th, .specs-table td {
+            border: 1px solid #EBEEF5;
+            padding: 12px 8px;
+            text-align: left;
+        }
+        .specs-table th {
+            background-color: #F5F7FA;
+            color: #606266;
+        }
+        .specs-table tr:hover {
+            background-color: #F5F7FA;
+        }
+        .state-transition {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #F5F7FA;
+            border-radius: 4px;
+        }
+        .transition-title {
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #303133;
+        }
+        .transition-steps {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .transition-step {
+            text-align: center;
+            margin-right: 20px;
+            margin-bottom: 10px;
+        }
+        .step-number {
+            width: 24px;
+            height: 24px;
+            background-color: #409EFF;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+        }
+        .step-desc {
+            font-size: 14px;
+            color: #606266;
+            max-width: 120px;
+        }
+        .arrow {
+            font-size: 20px;
+            color: #DCDFE6;
+            margin: 0 10px;
+            margin-bottom: 20px;
+        }
+        .ui-states {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 40px;
+        }
+        .state-column {
+            flex: 1;
+            margin: 0 10px;
+            max-width: 300px;
+        }
+        .state-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #303133;
+        }
+    </style>
+</head>
+<body>
+    <h1>历史会话UI标注 - 搜索结果显示</h1>
+    
+    <div class="design-container">
+        <h2>搜索结果显示设计说明</h2>
+        
+        <p>搜索结果显示是历史会话功能中的重要交互环节，根据用户的搜索关键词，显示匹配的历史会话记录。搜索结果页面需要支持三种状态：有结果状态、无结果状态和正在搜索状态。</p>
+        
+        <div class="ui-states">
+            <!-- 有结果状态 -->
+            <div class="state-column">
+                <div class="state-title">有结果状态</div>
+                <div class="sidebar-preview">
+                    <div class="sidebar-header">历史会话</div>
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <span class="search-text">人工智能</span>
+                        <span class="clear-icon">✕</span>
+                    </div>
+                    
+                    <div class="search-results">
+                        找到 3 条关于 "<span class="highlight-text">人工智能</span>" 的结果
+                    </div>
+                    
+                    <div class="chat-item">
+                        <div class="chat-title">关于<span class="highlight-text">人工智能</span>的讨论</div>
+                        <div class="chat-preview">14:30 <span class="highlight-text">人工智能</span>技术的应用场景...</div>
+                        <div class="delete-icon">🗑️</div>
+                    </div>
+                    
+                    <div class="chat-item">
+                        <div class="chat-title">企业中的<span class="highlight-text">人工智能</span>应用</div>
+                        <div class="chat-preview">昨天 如何利用<span class="highlight-text">人工智能</span>提升效率...</div>
+                        <div class="delete-icon">🗑️</div>
+                    </div>
+                    
+                    <div class="chat-item">
+                        <div class="chat-title"><span class="highlight-text">人工智能</span>伦理问题</div>
+                        <div class="chat-preview">3月20日 <span class="highlight-text">人工智能</span>发展中的伦理问题...</div>
+                        <div class="delete-icon">🗑️</div>
+                    </div>
+                </div>
+                
+                <!-- 搜索结果信息栏标注 -->
+                <div class="annotation-line" style="top: 130px; left: 190px; width: 2px; height: 36px;"></div>
+                <div class="annotation-text" style="top: 110px; left: 195px;">
+                    背景色: #F2F6FC
+                </div>
+                
+                <!-- 高亮文本标注 -->
+                <div class="annotation-line" style="top: 130px; left: 240px; width: 2px; height: 14px;"></div>
+                <div class="annotation-text" style="top: 150px; left: 245px;">
+                    高亮: #409EFF bold
+                </div>
+            </div>
+            
+            <!-- 无结果状态 -->
+            <div class="state-column">
+                <div class="state-title">无结果状态</div>
+                <div class="sidebar-preview">
+                    <div class="sidebar-header">历史会话</div>
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <span class="search-text">不存在的关键词</span>
+                        <span class="clear-icon">✕</span>
+                    </div>
+                    
+                    <div class="search-results">
+                        未找到相关结果
+                    </div>
+                    
+                    <div class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <div>没有找到匹配的会话记录</div>
+                        <div>尝试使用其他关键词搜索</div>
+                    </div>
+                </div>
+                
+                <!-- 空状态标注 -->
+                <div class="annotation-line" style="top: 300px; left: 190px; width: 2px; height: 80px;"></div>
+                <div class="annotation-text" style="top: 280px; left: 195px;">
+                    空状态提示
+                </div>
+                
+                <!-- 文字颜色标注 -->
+                <div class="annotation-line" style="top: 380px; left: 190px; width: 2px; height: 14px;"></div>
+                <div class="annotation-text" style="top: 400px; left: 195px;">
+                    文字: #909399
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="design-container">
+        <h3>搜索结果详细规格</h3>
+        <table class="specs-table">
+            <thead>
+                <tr>
+                    <th>元素</th>
+                    <th>尺寸</th>
+                    <th>内边距</th>
+                    <th>外边距</th>
+                    <th>颜色</th>
+                    <th>字体</th>
+                    <th>特殊效果</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>搜索结果信息栏</td>
+                    <td>宽度: 100%<br>高度: 36px</td>
+                    <td>8px 16px</td>
+                    <td>-</td>
+                    <td>背景色: #F2F6FC<br>文字: #606266<br>高亮文字: #409EFF</td>
+                    <td>14px<br>高亮文字: 14px bold</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>搜索结果列表</td>
+                    <td>宽度: 100%<br>高度: 自适应</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>垂直滚动</td>
+                </tr>
+                <tr>
+                    <td>高亮关键词</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>文字: #409EFF</td>
+                    <td>与原文字大小相同<br>加粗显示</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>空状态提示</td>
+                    <td>宽度: 100%<br>高度: 200px</td>
+                    <td>20px</td>
+                    <td>-</td>
+                    <td>文字: #909399<br>图标: #DCDFE6</td>
+                    <td>14px</td>
+                    <td>居中显示</td>
+                </tr>
+                <tr>
+                    <td>空状态图标</td>
+                    <td>48px x 48px</td>
+                    <td>-</td>
+                    <td>下: 12px</td>
+                    <td>颜色: #DCDFE6</td>
+                    <td>48px</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="state-transition">
+            <div class="transition-title">搜索状态切换流程</div>
+            <div class="transition-steps">
+                <div class="transition-step">
+                    <div class="step-number">1</div>
+                    <div class="step-desc">用户输入搜索关键词</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="transition-step">
+                    <div class="step-number">2</div>
+                    <div class="step-desc">显示搜索结果数量信息栏</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="transition-step">
+                    <div class="step-number">3</div>
+                    <div class="step-desc">展示匹配结果，关键词高亮显示</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="transition-step">
+                    <div class="step-number">4</div>
+                    <div class="step-desc">如无结果，显示空状态提示</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="transition-step">
+                    <div class="step-number">5</div>
+                    <div class="step-desc">点击清除按钮，恢复默认显示</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

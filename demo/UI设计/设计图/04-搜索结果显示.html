@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史会话设计 - 搜索结果显示</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #303133;
+            border-bottom: 2px solid #409EFF;
+            padding-bottom: 10px;
+        }
+        .design-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 40px;
+        }
+        .design-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+        }
+        .search-result-container {
+            width: 320px;
+            height: 500px;
+            border: 1px solid #DCDFE6;
+            border-radius: 4px;
+            background-color: #FFFFFF;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .search-result-header {
+            padding: 16px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #303133;
+            border-bottom: 1px solid #EBEEF5;
+        }
+        .search-box {
+            margin: 12px 16px;
+            padding: 8px 12px;
+            border: 1px solid #409EFF;
+            border-radius: 4px;
+            background-color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        .search-icon {
+            color: #909399;
+            margin-right: 8px;
+            font-size: 16px;
+        }
+        .search-text {
+            color: #303133;
+            font-size: 14px;
+        }
+        .clear-icon {
+            position: absolute;
+            right: 10px;
+            color: #909399;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .result-item {
+            margin: 8px 16px;
+            padding: 12px;
+            border-radius: 4px;
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: relative;
+            border: 1px solid #DCDFE6;
+        }
+        .result-title {
+            font-weight: bold;
+            color: #303133;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .result-time {
+            color: #909399;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        .result-preview {
+            color: #606266;
+            font-size: 13px;
+        }
+        .highlight {
+            background-color: #ECF5FF;
+            padding: 0 2px;
+        }
+        .result-count {
+            margin: 16px;
+            color: #909399;
+            font-size: 14px;
+        }
+        .clear-search-btn {
+            margin: 0 16px 16px;
+            padding: 8px 16px;
+            background-color: #ECF5FF;
+            color: #409EFF;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .empty-state {
+            margin-top: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #909399;
+        }
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        .empty-text {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>历史会话设计 - 搜索结果显示</h1>
+    
+    <div class="design-container">
+        <h2>搜索结果显示设计描述</h2>
+        <ul>
+            <li>搜索结果按时间顺序展示，不显示时间分组标签</li>
+            <li>搜索结果标题下方显示会话时间</li>
+            <li>搜索关键词在结果中高亮显示（浅蓝色背景）</li>
+            <li>显示搜索结果数量</li>
+            <li>提供"清除搜索"按钮</li>
+            <li>无搜索结果时显示空状态提示</li>
+        </ul>
+        
+        <div class="design-preview">
+            <div class="search-result-container">
+                <div class="search-result-header">搜索结果: "人工智能"</div>
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <span class="search-text">人工智能</span>
+                    <span class="clear-icon">✕</span>
+                </div>
+                
+                <!-- 搜索结果项 -->
+                <div class="result-item">
+                    <div class="result-title">关于人工智能的讨论</div>
+                    <div class="result-time">今天 14:30</div>
+                    <div class="result-preview"><span class="highlight">人工智能</span>技术的应用场景...</div>
+                </div>
+                
+                <div class="result-item">
+                    <div class="result-title">机器学习入门指南</div>
+                    <div class="result-time">3月10日</div>
+                    <div class="result-preview">现代<span class="highlight">人工智能</span>的基础知识...</div>
+                </div>
+                
+                <div class="result-count">搜索结果: 2项</div>
+                <div class="clear-search-btn">清除搜索</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="design-container">
+        <h2>无搜索结果状态</h2>
+        
+        <div class="design-preview">
+            <div class="search-result-container">
+                <div class="search-result-header">搜索结果: "量子计算"</div>
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <span class="search-text">量子计算</span>
+                    <span class="clear-icon">✕</span>
+                </div>
+                
+                <!-- 空状态 -->
+                <div class="empty-state">
+                    <div class="empty-icon">🔍</div>
+                    <div class="empty-text">未找到相关会话记录</div>
+                </div>
+                
+                <div class="result-count">搜索结果: 0项</div>
+                <div class="clear-search-btn">清除搜索</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

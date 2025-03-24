@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史会话UI标注 - 删除确认弹窗</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #303133;
+            border-bottom: 2px solid #409EFF;
+            padding-bottom: 10px;
+        }
+        .design-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 40px;
+        }
+        .design-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+            position: relative;
+        }
+        .overlay {
+            width: 100%;
+            height: 450px;
+            background-color: rgba(0, 0, 0, 0.5);
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 4px;
+        }
+        .dialog {
+            width: 320px;
+            background-color: #FFFFFF;
+            border-radius: 4px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        .dialog-header {
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #303133;
+            border-bottom: 1px solid #EBEEF5;
+        }
+        .dialog-body {
+            padding: 20px;
+            font-size: 14px;
+            color: #606266;
+            line-height: 1.4;
+        }
+        .dialog-footer {
+            padding: 10px 20px 15px;
+            text-align: right;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .btn {
+            display: inline-block;
+            line-height: 1;
+            white-space: nowrap;
+            cursor: pointer;
+            background: #FFFFFF;
+            border: 1px solid #DCDFE6;
+            color: #606266;
+            text-align: center;
+            box-sizing: border-box;
+            outline: none;
+            margin: 0;
+            transition: .1s;
+            font-weight: 500;
+            padding: 9px 15px;
+            font-size: 12px;
+            border-radius: 3px;
+            margin-left: 10px;
+        }
+        .btn-default {
+            background-color: #FFFFFF;
+            border-color: #DCDFE6;
+            color: #606266;
+        }
+        .btn-primary {
+            background-color: #409EFF;
+            border-color: #409EFF;
+            color: #FFFFFF;
+        }
+        .btn-danger {
+            background-color: #F56C6C;
+            border-color: #F56C6C;
+            color: #FFFFFF;
+        }
+        .chat-title {
+            font-weight: bold;
+            color: #303133;
+            margin-bottom: 5px;
+        }
+        .annotation {
+            position: absolute;
+            background-color: rgba(255, 192, 203, 0.1);
+            border: 1px dashed #F56C6C;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            color: #F56C6C;
+            z-index: 100;
+        }
+        .annotation-line {
+            position: absolute;
+            background-color: #F56C6C;
+            z-index: 99;
+        }
+        .annotation-text {
+            position: absolute;
+            background-color: #F56C6C;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 2px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 100;
+        }
+        .specs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .specs-table th, .specs-table td {
+            border: 1px solid #EBEEF5;
+            padding: 12px 8px;
+            text-align: left;
+        }
+        .specs-table th {
+            background-color: #F5F7FA;
+            color: #606266;
+        }
+        .specs-table tr:hover {
+            background-color: #F5F7FA;
+        }
+        .color-block {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 5px;
+            vertical-align: middle;
+            border: 1px solid #DCDFE6;
+        }
+        .state-transition {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #F5F7FA;
+            border-radius: 4px;
+        }
+        .transition-title {
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #303133;
+        }
+        .transition-steps {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .transition-step {
+            text-align: center;
+            margin-right: 20px;
+            margin-bottom: 10px;
+        }
+        .step-number {
+            width: 24px;
+            height: 24px;
+            background-color: #409EFF;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+        }
+        .step-desc {
+            font-size: 14px;
+            color: #606266;
+            max-width: 120px;
+        }
+        .arrow {
+            font-size: 20px;
+            color: #DCDFE6;
+            margin: 0 10px;
+            margin-bottom: 20px;
+        }
+        .ui-states {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        .state-column {
+            margin: 0 10px 30px;
+            max-width: 350px;
+        }
+        .state-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #303133;
+        }
+    </style>
+</head>
+<body>
+    <h1>历史会话UI标注 - 删除确认弹窗</h1>
+    
+    <div class="design-container">
+        <h2>删除确认弹窗设计说明</h2>
+        
+        <p>删除确认弹窗在用户点击删除历史会话时出现，用于确认用户的删除意图，防止误操作。弹窗设计需要清晰传达删除操作的不可逆性，同时提供取消选项。</p>
+        
+        <div class="design-preview">
+            <div class="overlay">
+                <div class="dialog">
+                    <div class="dialog-header">
+                        删除确认
+                    </div>
+                    <div class="dialog-body">
+                        <div class="chat-title">关于人工智能的讨论</div>
+                        <p>确定要删除这条会话记录吗？该操作不可恢复。</p>
+                    </div>
+                    <div class="dialog-footer">
+                        <button class="btn btn-default">取消</button>
+                        <button class="btn btn-danger">删除</button>
+                    </div>
+                </div>
+                
+                <!-- 遮罩层标注 -->
+                <div class="annotation-line" style="top: 100px; left: 100px; width: 2px; height: 50px;"></div>
+                <div class="annotation-text" style="top: 85px; left: 105px;">
+                    遮罩层: rgba(0, 0, 0, 0.5)
+                </div>
+                
+                <!-- 对话框宽度标注 -->
+                <div class="annotation-line" style="top: 200px; left: 340px; width: 30px; height: 2px;"></div>
+                <div class="annotation-text" style="top: 190px; left: 375px;">
+                    宽度: 320px
+                </div>
+                
+                <!-- 标题栏标注 -->
+                <div class="annotation-line" style="top: 145px; right: 230px; width: 30px; height: 2px;"></div>
+                <div class="annotation-text" style="top: 135px; right: 175px;">
+                    标题栏: 16px bold
+                </div>
+                
+                <!-- 内容区标注 -->
+                <div class="annotation-line" style="top: 225px; left: 270px; width: 2px; height: 30px;"></div>
+                <div class="annotation-text" style="top: 215px; left: 275px;">
+                    内容: 14px
+                </div>
+                
+                <!-- 删除按钮标注 -->
+                <div class="annotation-line" style="top: 285px; right: 190px; width: 30px; height: 2px;"></div>
+                <div class="annotation-text" style="top: 275px; right: 110px;">
+                    删除按钮: #F56C6C
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="design-container">
+        <h3>删除确认弹窗详细规格</h3>
+        <table class="specs-table">
+            <thead>
+                <tr>
+                    <th>元素</th>
+                    <th>尺寸</th>
+                    <th>内边距</th>
+                    <th>颜色</th>
+                    <th>字体</th>
+                    <th>其他规格</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>遮罩层</td>
+                    <td>全屏</td>
+                    <td>-</td>
+                    <td>背景色: rgba(0, 0, 0, 0.5)</td>
+                    <td>-</td>
+                    <td>层级: z-index: 2000</td>
+                </tr>
+                <tr>
+                    <td>弹窗容器</td>
+                    <td>宽度: 320px<br>高度: 自适应</td>
+                    <td>-</td>
+                    <td>背景色: #FFFFFF<br>边框: -<br>圆角: 4px<br>阴影: 0 2px 12px 0 rgba(0, 0, 0, 0.1)</td>
+                    <td>-</td>
+                    <td>居中显示</td>
+                </tr>
+                <tr>
+                    <td>弹窗标题栏</td>
+                    <td>宽度: 100%<br>高度: 自适应</td>
+                    <td>15px 20px</td>
+                    <td>背景色: #FFFFFF<br>边框底: 1px solid #EBEEF5<br>文字: #303133</td>
+                    <td>16px bold</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>弹窗内容区</td>
+                    <td>宽度: 100%<br>高度: 自适应</td>
+                    <td>20px</td>
+                    <td>背景色: #FFFFFF<br>文字: #606266</td>
+                    <td>14px<br>行高: 1.4</td>
+                    <td>会话标题: 14px bold #303133</td>
+                </tr>
+                <tr>
+                    <td>弹窗底部按钮区</td>
+                    <td>宽度: 100%<br>高度: 自适应</td>
+                    <td>10px 20px 15px</td>
+                    <td>背景色: #FFFFFF</td>
+                    <td>-</td>
+                    <td>按钮右对齐</td>
+                </tr>
+                <tr>
+                    <td>取消按钮</td>
+                    <td>-</td>
+                    <td>9px 15px</td>
+                    <td>背景色: #FFFFFF<br>边框: 1px solid #DCDFE6<br>文字: #606266</td>
+                    <td>12px</td>
+                    <td>圆角: 3px<br>右边距: 10px</td>
+                </tr>
+                <tr>
+                    <td>删除按钮</td>
+                    <td>-</td>
+                    <td>9px 15px</td>
+                    <td>背景色: #F56C6C<br>边框: 1px solid #F56C6C<br>文字: #FFFFFF</td>
+                    <td>12px</td>
+                    <td>圆角: 3px</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="state-transition">
+            <div class="transition-title">删除确认弹窗交互流程</div>
+            <div class="transition-steps">
+                <div class="transition-step">
+                    <div class="step-number">1</div>
+                    <div class="step-desc">用户点击会话卡片的删除按钮</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="transition-step">
+                    <div class="step-number">2</div>
+                    <div class="step-desc">显示删除确认弹窗，背景遮罩</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="transition-step">
+                    <div class="step-number">3A</div>
+                    <div class="step-desc">用户点击"取消"，关闭弹窗</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="transition-step">
+                    <div class="step-number">3B</div>
+                    <div class="step-desc">用户点击"删除"，执行删除操作</div>
+                </div>
+                <div class="arrow">→</div>
+                <div class="transition-step">
+                    <div class="step-number">4</div>
+                    <div class="step-desc">显示删除成功提示，更新列表</div>
+                </div>
+            </div>
+        </div>
+        
+        <h3>按钮状态变化</h3>
+        <div class="ui-states">
+            <div class="state-column">
+                <div class="state-title">默认状态</div>
+                <div style="padding: 20px; background-color: #F5F7FA; border-radius: 4px; text-align: center;">
+                    <button class="btn btn-default">取消</button>
+                    <button class="btn btn-danger">删除</button>
+                </div>
+            </div>
+            <div class="state-column">
+                <div class="state-title">悬停状态</div>
+                <div style="padding: 20px; background-color: #F5F7FA; border-radius: 4px; text-align: center;">
+                    <button class="btn btn-default" style="background-color: #F5F7FA;">取消</button>
+                    <button class="btn btn-danger" style="background-color: #F78989;">删除</button>
+                </div>
+                <div style="margin-top: 10px; font-size: 12px; color: #909399; text-align: center;">
+                    取消按钮悬停: 背景色 #F5F7FA<br>
+                    删除按钮悬停: 背景色 #F78989
+                </div>
+            </div>
+            <div class="state-column">
+                <div class="state-title">激活状态</div>
+                <div style="padding: 20px; background-color: #F5F7FA; border-radius: 4px; text-align: center;">
+                    <button class="btn btn-default" style="background-color: #EBEEF5;">取消</button>
+                    <button class="btn btn-danger" style="background-color: #E45454;">删除</button>
+                </div>
+                <div style="margin-top: 10px; font-size: 12px; color: #909399; text-align: center;">
+                    取消按钮激活: 背景色 #EBEEF5<br>
+                    删除按钮激活: 背景色 #E45454
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
