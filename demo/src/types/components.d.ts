@@ -28,6 +28,7 @@ declare module 'vue' {
     ElFormItem: typeof import('element-plus/es')['ElFormItem']
     ElHeader: typeof import('element-plus/es')['ElHeader']
     ElIcon: typeof import('element-plus/es')['ElIcon']
+    ElIconChatDotRound: typeof import('@element-plus/icons-vue')['ChatDotRound']
     ElIconExpand: typeof import('@element-plus/icons-vue')['Expand']
     ElIconFold: typeof import('@element-plus/icons-vue')['Fold']
     ElIconMenu: typeof import('@element-plus/icons-vue')['Menu']

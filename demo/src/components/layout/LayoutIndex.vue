@@ -1,12 +1,20 @@
 <script setup lang="ts">
 import { useAppStore } from '@/stores/modules/app'
 import { useUserStore } from '@/stores/modules/user'
+import { Menu as MenuIcon, ChatDotRound, Expand, Fold } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router'
+import { markRaw } from 'vue'
 
 const appStore = useAppStore()
 const userStore = useUserStore()
+const router = useRouter()
 
 function handleLogout() {
   userStore.logout()
+}
+
+function navigateTo(path: string) {
+  router.push(path)
 }
 </script>
 
@@ -24,13 +32,17 @@ function handleLogout() {
         background-color="#304156"
         text-color="#bfcbd9"
         active-text-color="#409EFF"
+        unique-opened
         router
       >
-        <el-menu-item index="/dashboard">
-          <el-icon><el-icon-menu /></el-icon>
-          <span>首页</span>
+        <el-menu-item index="/dashboard" @click="navigateTo('/dashboard')">
+          <el-icon><MenuIcon /></el-icon>
+          <template #title>首页</template>
         </el-menu-item>
-        <!-- 更多菜单项 -->
+        <el-menu-item index="/history" @click="navigateTo('/history')">
+          <el-icon><ChatDotRound /></el-icon>
+          <template #title>历史记录</template>
+        </el-menu-item>
       </el-menu>
     </el-aside>
 
@@ -39,8 +51,8 @@ function handleLogout() {
       <el-header class="app-header">
         <div class="header-left">
           <el-icon @click="appStore.toggleSidebar" class="toggle-sidebar">
-            <el-icon-expand v-if="!appStore.sidebarOpened" />
-            <el-icon-fold v-else />
+            <Expand v-if="!appStore.sidebarOpened" />
+            <Fold v-else />
           </el-icon>
           <el-breadcrumb separator="/">
             <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
@@ -51,7 +63,7 @@ function handleLogout() {
           <el-dropdown trigger="click">
             <div class="avatar-container">
               <el-avatar :size="32" :src="userStore.state.userInfo?.avatar" />
-              <span class="username">{{ userStore.state.userInfo?.nickname }}</span>
+              <span class="username">{{ userStore.state.userInfo?.name }}</span>
             </div>
             <template #dropdown>
               <el-dropdown-menu>
@@ -66,10 +78,12 @@ function handleLogout() {
       <!-- 内容区 -->
       <el-main class="app-main">
         <router-view v-slot="{ Component }">
-          <keep-alive>
-            <component :is="Component" v-if="$route.meta.keepAlive" />
-          </keep-alive>
-          <component :is="Component" v-if="!$route.meta.keepAlive" />
+          <transition name="fade-transform" mode="out-in">
+            <keep-alive v-if="$route.meta.keepAlive">
+              <component :is="markRaw(Component)" />
+            </keep-alive>
+            <component :is="markRaw(Component)" v-else />
+          </transition>
         </router-view>
       </el-main>
     </el-container>

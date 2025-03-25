@@ -20,6 +20,7 @@
         :title="chat.title"
         :preview="chat.preview"
         :timestamp="chat.timestamp"
+        :keyword="searchKeyword"
         @delete="handleDelete"
         @select="handleSelect"
       />

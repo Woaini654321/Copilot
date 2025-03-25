@@ -1,19 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import routes from './routes'
 import storage from '@/utils/storage'
-import { ElMessage } from 'element-plus'
-import History from '@/views/history/index.vue'
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: [
-    {
-      path: '/history',
-      name: 'History',
-      component: History,
-    },
-    ...routes,
-  ],
+  routes,
   // 刷新时滚动到顶部
   scrollBehavior: () => ({ left: 0, top: 0 }),
 })
@@ -41,7 +32,10 @@ router.beforeEach((to, _from, next) => {
       next()
     } else {
       // 重定向到登录页
-      ElMessage.warning('请先登录')
+      // 使用动态导入避免循环依赖
+      import('element-plus').then(({ ElMessage }) => {
+        ElMessage.warning('请先登录')
+      })
       next(`/login?redirect=${to.path}`)
     }
   }

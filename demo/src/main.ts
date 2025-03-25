@@ -10,16 +10,16 @@ import './assets/styles/index.scss'
 // 创建应用实例
 const app = createApp(App)
 
-// 挂载状态管理
-setupStore(app)
-
-// 挂载路由
-app.use(router)
-
 // 挂载 Element Plus
 app.use(ElementPlus, {
   size: 'default',
 })
 
-// 挂载应用
+// 先挂载状态管理
+setupStore(app)
+
+// 再挂载路由
+app.use(router)
+
+// 最后挂载应用
 app.mount('#app')

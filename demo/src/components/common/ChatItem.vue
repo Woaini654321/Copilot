@@ -6,10 +6,10 @@
     @click="handleSelect"
   >
     <div class="chat-content">
-      <div class="chat-title" :title="title">{{ title }}</div>
+      <div class="chat-title" :title="title" v-html="highlightedTitle"></div>
       <div class="chat-preview">
         <span class="chat-time">{{ formatTime(timestamp) }}</span>
-        <span class="preview-text" :title="preview">{{ preview }}</span>
+        <span class="preview-text" :title="preview" v-html="highlightedPreview"></span>
       </div>
     </div>
     <el-icon
@@ -23,21 +23,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { Delete } from '@element-plus/icons-vue';
 import dayjs from 'dayjs';
+import { highlightText } from '@/utils/highlight';
 
 interface Props {
   id: string;
   title: string;
   preview: string;
   timestamp: string;
+  keyword?: string;
 }
 
-const props = defineProps<Props>();
-const emit = defineEmits(['delete', 'select']);
+const props = withDefaults(defineProps<Props>(), {
+  keyword: ''
+});
 
+const emit = defineEmits(['delete', 'select']);
 const showDelete = ref(false);
+
+// 高亮显示的标题
+const highlightedTitle = computed(() => {
+  return highlightText(props.title, props.keyword);
+});
+
+// 高亮显示的预览文本
+const highlightedPreview = computed(() => {
+  return highlightText(props.preview, props.keyword);
+});
 
 // 格式化时间
 const formatTime = (timestamp: string) => {
@@ -132,5 +146,13 @@ const handleSelect = () => {
       background-color: rgba(245, 108, 108, 0.1);
     }
   }
+}
+
+:deep(.highlight) {
+  color: #409EFF;
+  font-weight: bold;
+  background-color: rgba(64, 158, 255, 0.1);
+  padding: 0 2px;
+  border-radius: 2px;
 }
 </style>
