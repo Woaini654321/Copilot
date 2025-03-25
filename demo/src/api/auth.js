@@ -12,7 +12,7 @@ export default {
    * @returns {Promise} - 请求Promise
    */
   login(data) {
-    return post('/auth/login', data);
+    return post('auth/login', data);
   },
 
   /**
@@ -20,6 +20,6 @@ export default {
    * @returns {Promise} - 请求Promise
    */
   getCurrentUser() {
-    return post('/auth/me');
+    return post('auth/me');
   }
 };

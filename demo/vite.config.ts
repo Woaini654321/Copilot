@@ -36,9 +36,8 @@ export default defineConfig({
     open: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:3000', // 修改为后端服务地址
+        target: 'http://localhost:3000',
         changeOrigin: true,
-        rewrite: path => path.replace(/^\/api/, ''),
         configure: (proxy, _options) => {
           proxy.on('error', (err, _req, _res) => {
             console.log('proxy error', err);

@@ -13,7 +13,7 @@ export default {
    */
   getHistories(params) {
     return request({
-      url: '/api/history',
+      url: '/history',
       method: 'get',
       params
     });
@@ -29,7 +29,7 @@ export default {
    */
   searchHistories(params) {
     return request({
-      url: '/api/history/search',
+      url: '/history/search',
       method: 'get',
       params
     });
@@ -42,7 +42,7 @@ export default {
    */
   getHistoryById(id) {
     return request({
-      url: `/api/history/${id}`,
+      url: `/history/${id}`,
       method: 'get'
     });
   },
@@ -54,7 +54,7 @@ export default {
    */
   deleteHistory(id) {
     return request({
-      url: `/api/history/${id}`,
+      url: `/history/${id}`,
       method: 'delete'
     });
   }

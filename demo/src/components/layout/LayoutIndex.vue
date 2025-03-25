@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useAppStore } from '@/stores/modules/app'
 import { useUserStore } from '@/stores/modules/user'
-import { Menu as MenuIcon, ChatDotRound, Expand, Fold } from '@element-plus/icons-vue'
+import { Menu as MenuIcon, ChatDotRound, Expand, Fold, User, SwitchButton } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import { markRaw } from 'vue'
 
@@ -62,13 +62,22 @@ function navigateTo(path: string) {
         <div class="header-right">
           <el-dropdown trigger="click">
             <div class="avatar-container">
-              <el-avatar :size="32" :src="userStore.state.userInfo?.avatar" />
+              <el-avatar 
+                :size="32" 
+                :src="userStore.state.userInfo?.avatar || 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png'"
+              />
               <span class="username">{{ userStore.state.userInfo?.name }}</span>
             </div>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item>个人信息</el-dropdown-item>
-                <el-dropdown-item divided @click="handleLogout">退出登录</el-dropdown-item>
+                <el-dropdown-item @click="navigateTo('/profile')">
+                  <el-icon><User /></el-icon>
+                  个人信息
+                </el-dropdown-item>
+                <el-dropdown-item divided @click="handleLogout">
+                  <el-icon><SwitchButton /></el-icon>
+                  退出登录
+                </el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -161,16 +170,23 @@ function navigateTo(path: string) {
       display: flex;
       align-items: center;
       cursor: pointer;
+      padding: 0 8px;
+      height: 100%;
+      
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.025);
+      }
 
       .username {
         margin-left: 8px;
+        font-size: 14px;
+        color: #606266;
       }
     }
   }
 }
 
 .app-main {
-  padding: 16px;
   background-color: #f0f2f5;
   height: calc(100vh - 60px);
   overflow-y: auto;

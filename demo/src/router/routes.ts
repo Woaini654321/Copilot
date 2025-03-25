@@ -42,7 +42,17 @@ export const routes: RouteRecordRaw[] = [
         meta: {
           title: '会话详情',
           icon: 'chat',
-          hidden: true,
+          keepAlive: false,
+        },
+      },
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: () => import('@/views/profile/index.vue'),
+        meta: {
+          title: '个人信息',
+          icon: 'user',
+          keepAlive: false,
         },
       },
     ],
