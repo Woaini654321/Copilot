@@ -116,7 +116,7 @@ npm test -- tests/unit/components/SearchBox.spec.ts
 ### 5.3 生成测试覆盖率报告
 
 ```bash
-npm run test:coverage
+npm run coverage
 ```
 
 覆盖率报告将生成在 `coverage` 目录中，可以打开 `coverage/index.html` 查看详细报告。

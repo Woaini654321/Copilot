@@ -1,0 +1,4 @@
+
+> demo@0.0.0 test
+> vitest --coverage --json --outputFile=/Users/admin/Copilot/demo/test-reports/test-reports-2025-04-01_17-09-54/test_summary.json
+
