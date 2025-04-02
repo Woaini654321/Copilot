@@ -56,11 +56,8 @@ const highlightedPreview = computed(() => {
 // 格式化时间
 const formatTime = (timestamp: string) => {
   const date = dayjs(timestamp);
-  // 在测试环境中，使用固定的时间
-  const today = process.env.NODE_ENV === 'test' 
-    ? dayjs('2025-03-25').startOf('day')  // 测试环境使用固定日期
-    : dayjs().startOf('day');
-  const yesterday = today.subtract(1, 'day');
+  const today = dayjs();
+  const yesterday = dayjs().subtract(1, 'day');
 
   if (date.isSame(today, 'day')) {
     return date.format('HH:mm');
