@@ -8,6 +8,7 @@ const path = require('path');
 // 导入路由
 const authRoutes = require('./routes/auth.routes');
 const historyRoutes = require('./routes/history.routes');
+const resourceRoutes = require('../routes/resource.routes'); // 导入资源路由
 
 // 加载环境变量
 dotenv.config();
@@ -45,6 +46,7 @@ app.use((req, res, next) => {
 // API路由
 app.use('/api/auth', authRoutes);
 app.use('/api/history', historyRoutes);
+app.use('/api/resource', resourceRoutes); // 注册资源路由
 
 // 健康检查路由
 app.get('/health', (req, res) => {

@@ -4,6 +4,7 @@ import Dashboard from '@/views/dashboard/index.vue'
 import Login from '@/views/login/index.vue'
 import NotFound from '@/views/error/404.vue'
 import History from '@/views/history/index.vue'
+import MyResource from '@/views/resource/MyResource.vue'
 
 /**
  * 路由配置
@@ -53,6 +54,16 @@ export const routes: RouteRecordRaw[] = [
           title: '个人信息',
           icon: 'user',
           keepAlive: false,
+        },
+      },
+      {
+        path: 'resource',
+        name: 'MyResource',
+        component: MyResource,
+        meta: {
+          title: '我的资源',
+          icon: 'folder',
+          keepAlive: true,
         },
       },
     ],

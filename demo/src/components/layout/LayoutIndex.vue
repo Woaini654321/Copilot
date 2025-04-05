@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useAppStore } from '@/stores/modules/app'
 import { useUserStore } from '@/stores/modules/user'
-import { Menu as MenuIcon, ChatDotRound, Expand, Fold, User, SwitchButton } from '@element-plus/icons-vue'
+import { Menu as MenuIcon, ChatDotRound, Expand, Fold, User, SwitchButton, Folder } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import { markRaw } from 'vue'
 
@@ -42,6 +42,10 @@ function navigateTo(path: string) {
         <el-menu-item index="/history" @click="navigateTo('/history')">
           <el-icon><ChatDotRound /></el-icon>
           <template #title>历史记录</template>
+        </el-menu-item>
+        <el-menu-item index="/resource" @click="navigateTo('/resource')">
+          <el-icon><Folder /></el-icon>
+          <template #title>我的资源</template>
         </el-menu-item>
       </el-menu>
     </el-aside>
